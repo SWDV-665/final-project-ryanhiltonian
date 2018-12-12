@@ -1,50 +1,75 @@
 import { Component } from '@angular/core';
-import { NavController, NavParams } from 'ionic-angular';
+import { NavController, NavParams, AlertController } from 'ionic-angular';
 import { RecipePage } from '../../pages/recipe/recipe';
+import { InputPage } from '../../pages/input/input';
 import { DataServiceProvider } from '../../providers/data-service/data-service';
-
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'page-landing',
   templateUrl: 'landing.html'
 })
 export class LandingPage {
-  selectedItem: any;
-  icons: string[];
-  // recipes: Array<{title: string}>;
-  recipes: any[];
-  // recipes = ["one"];
+  ionViewWillEnter(){
+  this.loadRecipes();
+  }
+  
+  baseURL = this.dataSrv.baseURL;
+  
+  title = "My Recipes";
 
-  constructor(public dataSrv: DataServiceProvider, public navCtrl: NavController, public navParams: NavParams) {
-    // If we navigated to this page, we will have an item available as a nav param
-    this.selectedItem = navParams.get('item');
+  // icons: string[];
+  recipes= [];
+  errorMessage:string;
 
-    // Let's populate this page with some filler content for funzies
-    this.icons = ['flask', 'restaurant', 'beer', 'pizza' ];
+  constructor(public http: HttpClient, public alertCtrl: AlertController, public dataSrv: DataServiceProvider, public navCtrl: NavController, public navParams: NavParams) {
+  
+    dataSrv.dataChanged$.subscribe((dataChanged: boolean) => {
+    this.loadRecipes();
+    });
+    // this.icons = ['flask', 'restaurant', 'beer', 'pizza' ];
+    // this.recipes = this.dataSrv.getList(); 
 
+  }
+  
+  ionViewDidLoad() {
+    this.loadRecipes();
+  }
 
-    this.recipes = this.dataSrv.getList();
-    // for (let recipe of this.recipes) {
-      // for (let i of this.dataSrv.getList()) {
-      // this.recipes.push()
-    
-
-
-    // // for (let recipe of this.recipes) {
-    //   for (let i in this.dataSrv.getList()) {
-    //   this.recipes.push(i);
-    // } 
-
-
+  loadRecipes() {
+    this.dataSrv.getList()
+    .subscribe(
+      recipes => this.recipes = recipes,
+      error => this.errorMessage = <any>error);
   }
 
   itemTapped(event, recipe) {
     this.navCtrl.push(RecipePage, {
       item: recipe
-      
     })
     
     console.log(recipe.title);
   }
 
+  addNew() {
+    this.navCtrl.push(InputPage, {
+      recId: "newplease"
+    })
+    console.log("Add new recipe button clicked.");
+  }
+
+  editRecipe(item) {
+    this.navCtrl.push(InputPage, {
+      recId: item._id,
+      recipe: item
+    })
+    console.log("Add new recipe button clicked.");
+  }
+
+  removeRecipe(item, i) {
+    this.dataSrv.removeRecipe(item, i);
+    this.navCtrl.push(LandingPage, {
+    });
+  }
+    
 }

@@ -1,214 +1,141 @@
-import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import {Observable} from 'rxjs/Observable';
+import{map, catchError} from 'rxjs/operators';
+import{ Subject} from 'rxjs';
+import { Nav, NavParams, AlertController } from 'ionic-angular';
+import { InputPage } from '../../pages/input/input';
+import { LandingPage } from '../../pages/landing/landing';
 
-/*
-  Generated class for the DataServiceProvider provider.
 
-  See https://angular.io/guide/dependency-injection for more info on providers
-  and Angular DI.
-*/
 @Injectable()
 export class DataServiceProvider {
 
-  baseURL="http://localhost:8080";
+  items: any = [];
 
-  constructor(public http: HttpClient) {
+  dataChanged$: Observable<boolean>;
+  dataChangeSubject: Subject <boolean>;
+  baseURL="http://166.70.225.69:8081";
+
+  conversionJson = this.getUoM()[0];
+  conversionNames = Object.keys(this.conversionJson);
+  conversionFactors = [];
+
+  constructor (public http: HttpClient, public alertCtrl: AlertController){
     console.log('Hello DataServiceProvider Provider');
+
+    this.dataChangeSubject=new Subject <boolean>();
+    this.dataChanged$=this.dataChangeSubject.asObservable();
+
+    for( let item of this.conversionNames) {
+      let num = this.conversionJson[item];
+      this.conversionFactors.push(num);
+    }
+
   }
-  
-getList() {
-  // return [this.http.get(this.baseURL + 'api/recipes')];
-  // let recipeList = [];
-  // for (let recipe in this.http.get(this.baseURL + 'api/recipes')) {
-  //   recipeList.push(recipe)
-  // }
 
+  getList():Observable<object[]> {
+    return this.http.get(this.baseURL + '/api/recipes').pipe(
+      map(this.extractData),
+      catchError(this.handleError)
+    );
+  }
 
-  // While I troubleshoot and figure out how to get MongoDB to return a JSON object, I will
-  // hard code this example JSON which represents some recipes being returned.
-  return [
+  private extractData(res:Response){
+    let body=res;
+    return body || {};
+
+  }
     
-      {
-          "images": [],
-          "_id": "5bf9cda5617bbc327c6595cc",
-          "name": "Recipe12",
-          "instructions": "Mix flours14412 and water together in a bowl . . .",
-          "ingredients": {
-            "Ingredient1": ".15",
-            "Ingredient2": ".105",
-            "ingredien3": "14"
-        },
-            "Units_of_Measure": [
-            "Cups",
-            "Gallons",
-            "Ounces"
-        ],
-          "__v": 0
-      },
-      {
-          "images": [],
-          "_id": "5bf9dddb14f9b039e80cc827",
-          "name": "Recipe4",
-          "instructions": "Mix flours4 and water together in a bowl . . .",
-          "ingredients": {
-            "Ingredient1": ".15",
-            "Ingredient2": ".105",
-            "ingredien3": "14"
-        },
-            "Units_of_Measure": [
-            "Cups",
-            "Gallons",
-            "Ounces"
-        ],
-          "__v": 0
-      },
-      {
-          "images": [],
-          "_id": "5bf9e5bbfb9a6339ec4ea87f",
-          "name": "Recipe13",
-          "instructions": "",
-          "__v": 0,
-          "ingredients": {'':[]},
-          "Units of Meausre": []
-      },
-      {
-          "images": [],
-          "_id": "5bf9e692f985511c5c2a8bb9",
-          "name": "Recipe14",
-          "instructions": "Mix flours14 and water together in a bowl Do you really need to sift flour? Can you eyeball the water for a pot of rice? We debunk 14 common recipe instructions that aren't really necessary. Save your time and energy for something more important-like dessert!Do you really need to sift flour? Can you eyeball the water for a pot of rice? We debunk 14 common recipe instructions that aren't really necessary. Save your time and energy for something more important-like dessert!",
-          "ingredients": {
-            "Ingredient1": ".15",
-            "Ingredient2": ".105",
-            "ingredient3": "14",
-            "Ingredient4": ".15",
-            "Ingredient5": ".105",
-            "ingredient6": "14",
-            "Ingredient7": ".15",
-            "Ingredient8": ".105",
-            "ingredient9": "14",
-            "Ingredient10": ".15",
-            "Ingredient11": ".105",
-            "ingredient12": "14",
-            "Ingredient13": ".15",
-            "Ingredient14": ".105",
-            "ingredient15": "14"
-        },
-             "Units_of_Measure": [
-            "Cups",
-            "Gallons",
-            "Ounces",
-            "Pints",
-            "Cups",
-            "Gallons",
-            "Ounces",
-            "Pints",
-            "Cups",
-            "Gallons",
-            "Ounces",
-            "Pints","Cups",
-            "Gallons",
-            "Ounces"
-        ],
-          "__v": 0
-      },
-      {
-          "images": [],
-          "_id": "5bf9e98926bce823bc545485",
-          "name": "Recipe16",
-          "instructions": "Mix flours16 and water together in a bowl . . .",
-          "ingredients": {
-            "Ingredient1": ".15",
-            "Ingredient2": ".105",
-            "ingredient3": "14",
-            "Ingredient4": ".15",
-            "Ingredient5": ".105",
-            "ingredient6": "14",
-            "Ingredient7": ".15",
-            "Ingredient8": ".105",
-            "ingredient9": "14",
-            "Ingredient10": ".15",
-            "Ingredient11": ".105",
-            "ingredient12": "14",
-            "Ingredient13": ".15",
-            "Ingredient14": ".105",
-            "ingredient15": "14"
-        },
-            "Units_of_Measure": [
-                "Cups",
-                "Gallons",
-                "Ounces",
-                "Pints",
-                "Cups",
-                "Gallons",
-                "Ounces",
-                "Pints",
-                "Cups",
-                "Gallons",
-                "Ounces",
-                "Pints","Cups",
-                "Gallons",
-                "Ounces"
-            ],
-          "__v": 0
-      },
-      {
-          "images": [],
-          "_id": "5bf9ea2226bce823bc545486",
-          "name": "Recipe17",
-          "instructions": "Mix flours16 and water together in a bowl . . .",
-          "ingredients": {
-              "Ingredient1": ".15",
-              "Ingredient2": ".105",
-              "ingredien3": "14"
-          },
-                "Units_of_Measure": [
-                "Cups",
-                "Gallons"
-            ],
-          "__v": 0
-      },
-      {
-        "images": [],
-        "_id": "5bf9ea2226bce823bc545486",
-        "name": "Recipe19",
-        "instructions": "Mix flours14 and water together in a bowl Do you really need to sift flour? Can you eyeball the water for a pot of rice? We debunk 14 common recipe instructions that aren't really necessary. Save your time and energy for something more important-like dessert!Do you really need to sift flour? Can you eyeball the water for a pot of rice? We debunk 14 common recipe instructions that aren't really necessary. Save your time and energy for something more important-like dessert!Mix flours14 and water together in a bowl Do you really need to sift flour? Can you eyeball the water for a pot of rice? We debunk 14 common recipe instructions that aren't really necessary. Save your time and energy for something more important-like dessert!Do you really need to sift flour? Can you eyeball the water for a pot of rice? We debunk 14 common recipe instructions that aren't really necessary. Save your time and energy for something more important-like dessert!Mix flours16 and water together in a bowl Bring 3 cups water and 1/2 teaspoon salt to a boil.       Add 1 cup cereal and turn heat to low. Cover and cook for about 10 minutes, stirring occasionall      Makes enough for four hungry folks (about 2-1/2 cups). Serve with honey (or brown sugar) and milk. ",
-        "ingredients": {
-            "Ingredient1": ".15",
-            "Ingredient2": ".105",
-            "ingredien3": "14"
-        },
-        "Units_of_Measure": [
-        "Cups",
-        "Gallons"
-    ],
-        "__v": 0
-      }
-  ]
-    
+  private handleError(error:Response | any){
+    let errMsg: string;
+    if (error instanceof Response){
+      const err=error || '';
+      errMsg=`${error.status} - ${error.statusText || ''} ${err}`;
+    }else{
+      errMsg=error.message ? error.message : error.toString();
+    }
+    return Observable.throw(errMsg);
+  }
 
-}
+  putInfo(newRec) {
+    console.log("launching putInfo.")
+    this.http.put(this.baseURL +"/api/recipes/" + newRec._id, newRec).subscribe(res=> {
+    });
+    this.dataChangeSubject.next(true);
+  }
+
+  removeRecipe(item, i) {
+    // this.recipes.splice(i, 1);
+    this.http.delete(this.baseURL +"/api/recipes/" + item._id).subscribe(res=> {
+    });
+    this.dataChangeSubject.next(true);
+        
+  }
+
 
 getUoM() {
-
-//Like the previous method, above, this one will be updated when I figure out how to 
-//actually get the objects from the database.  For now, I will use this example 
-//document, which is the Unit of Measure conversion table.
-
-
+//For now, I will let the conversion factors be hard-coded
     return [
         {
-            "Cups": 6.66667,
-            "Pints": 3.333,
-            "Gallons": 0.4166875,
-            "Ounces": 53.336,
-            "Tablespoons": 106.66667,
-            "Teaspoons": 320,
-            "Liters": 1.57725491789,
-            "Milliliters": 1577.25491789,
-            "Cubic Inches": 96.25
-
+            "Cups": 0.25,
+            "Pints": 0.125,
+            "Quarts": 0.0625,
+            "Gallons": 0.015625,
+            "Ounces": 2.00,
+            "Tablespoons": 4.00,
+            "Teaspoons": 12.00,
+            "Liters": 0.0591471,
+            "Milliliters": 59.1471,
+            "Cubic Inches": 3.60938,
+            "Cubic Centimeters": 59.1471,
+            "Grams": 56.699,
+            "Milligrams": 56699,
+            "Pounds": 0.125,
+            "Gills": 0.50,  //index 14
+            "pieces": 1,
+            "whole": 1,
+            "large": 1,
+            "items": 1,
+            "of them": 1,
+            "to taste": 1,
+            "noodles": 1,
+            "eggs": 1,
+            "packages": 1,
+            "jars": 1,
+            "boxes": 1
           }
     ]
+}
+
+getConstants() {
+  return [this.conversionJson, this.conversionNames, this.conversionFactors];
+}
+
+
+parseData(recipe) {
+  let quantitiesList = [];  //quantities list starts with unitless numbers, but gets altered before display
+  let combinedList = recipe.ingredients;  //combined list has unitless numbers
+  let ingredientsList = Object.keys(recipe.ingredients);
+  let uomsDisplayed = recipe.units_of_measure;
+
+  for( let item of ingredientsList) {
+    let num = combinedList[item];
+    quantitiesList.push(num);
+  }
+
+    //Start with the quantities list as it shows in the JSON,
+  //But before displaying it, alter each value according to the conversion
+  //factor needed, and save each back into the quantitiesList.
+
+  for (var _i = 0; _i < quantitiesList.length; _i++) {
+    var num1 = +quantitiesList[_i];
+    var num2 = +this.conversionJson[uomsDisplayed[_i]]; 
+    quantitiesList[_i] = (num1 * num2).toFixed(2);
+  }
+
+  return [ingredientsList, quantitiesList, combinedList, uomsDisplayed];
+
 }
 
 }

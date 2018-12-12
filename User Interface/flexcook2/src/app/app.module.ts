@@ -1,13 +1,14 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { ErrorHandler, NgModule } from '@angular/core';
-import { IonicApp, IonicErrorHandler, IonicModule } from 'ionic-angular';
+import { IonicApp, IonicErrorHandler, IonicModule, NavController, NavParams } from 'ionic-angular';
+import { FormsModule } from '@angular/forms';
+import { Component } from '@angular/core';
 
 import { MyApp } from './app.component';
 import { HomePage } from '../pages/home/home';
-import { ListPage } from '../pages/list/list'; 
-import { TestPage } from '../pages/test/test';
 import { LandingPage } from '../pages/landing/landing';
 import { RecipePage } from '../pages/recipe/recipe';
+import { InputPage } from '../pages/input/input';
 
 import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
@@ -21,14 +22,15 @@ import { HttpClientModule } from '@angular/common/http';
   declarations: [
     MyApp,
     HomePage,
-    ListPage,
     LandingPage,
-    RecipePage
+    RecipePage,
+    InputPage
   ],
   imports: [
     HttpModule,
     HttpClientModule,
     BrowserModule,
+    FormsModule,
     IonicModule.forRoot(MyApp),
   ],
   bootstrap: [IonicApp],
@@ -36,8 +38,8 @@ import { HttpClientModule } from '@angular/common/http';
     MyApp,
     LandingPage,
     HomePage,
-    ListPage,
-    RecipePage
+    RecipePage,
+    InputPage
   ],
   providers: [
     StatusBar,
